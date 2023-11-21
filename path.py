@@ -21,12 +21,6 @@ def get_files(base_dir, ext=None):
     ext = [ext] if type(ext)!= list else ext
     ret_files = []
     
-    # for (dirpath, dirnames, filenames) in os.walk(base_dir):
-    #     for f in filenames:
-    #         if (ext is not None) and not any([f.endswith(e) for e in ext]):
-    #             continue
-    #         ret_files.append(os.path.join(dirpath,f))
-    
     for f in glob.glob(f'{base_dir}/**', recursive=True):
         if (ext is not None) and not any([f.endswith(e) for e in ext]):
             continue

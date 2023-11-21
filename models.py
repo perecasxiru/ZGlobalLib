@@ -132,6 +132,6 @@ def get_model(name='EfficientNetB3',
     # ef_out = Dropout(0.5)(ef_out)
     outputs = Dense(num_classes, activation='softmax')(ef_out)
 
-    model = Model(inputs, outputs)
+    model = ZModel(inputs, outputs)
     model._name = name
     return model
