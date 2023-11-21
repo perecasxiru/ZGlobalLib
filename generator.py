@@ -68,10 +68,12 @@ class DataGenerator(keras.utils.Sequence) :
         
         self.normalize255 = normalize255
         self.onehot = onehot
-        self.num_classes = num_classes if num_classes else len(np.unique(self.labels)) if self.onehot else None            
+        #self.num_classes = num_classes if num_classes else len(np.unique(self.labels)) if self.onehot else None            
+        self.num_classes = num_classes if num_classes else max(self.labels)+1 if self.onehot else None            
     
     def __len__(self) :
-        _len = len(self.images)//self.batch_size
+        # _len = len(self.images)//self.batch_size
+        _len = int(np.ceil(len(self.images)/self.batch_size))
         return _len # FIXME: (If we do this, then .predict doesn't work) if len(self.images)%self.batch_size == 0 else _len+1
   
     def __getitem__(self, idx) :
@@ -86,7 +88,7 @@ class DataGenerator(keras.utils.Sequence) :
         
         images = self.images[idx * self.batch_size : (idx+1) * self.batch_size]
         labels = self.labels[idx * self.batch_size : (idx+1) * self.batch_size]
-        
+                
         if self.from_files:
             images = np.array([imageio.imread(im) for im in images])
         
