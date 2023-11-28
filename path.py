@@ -2,7 +2,8 @@ import os
 import glob
 from datetime import datetime
 
-def get_files(base_dir, ext=None):
+def get_files(base_dir, ext=None, max_depth=None, exclude=None, 
+              contains_any=None, contains_all=None):
     """
     Returns all the files of base_dir recursively
     
@@ -17,20 +18,37 @@ def get_files(base_dir, ext=None):
     
     """
     
-    assert type(ext) in [list, str]
-    ext = [ext] if type(ext)!= list else ext
+    assert (ext is None) or (type(ext) in [list, str])
+    assert (exclude is None) or (type(exclude) in [list, str])
+    assert (contains_any is None) or (type(contains_any) in [list, str])
+    assert (contains_all is None) or (type(contains_all) in [list, str])
+    
+    ext = [ext] if type(ext)== str else ext
+    exclude = [exclude] if type(exclude)== str else exclude
+    contains_any = [contains_any] if type(contains_any)==str else contains_any
+    contains_all = [contains_all] if type(contains_all)==str else contains_all
+    
     ret_files = []
     
-    for f in glob.glob(f'{base_dir}/**', recursive=True):
+    search_pattern = f'{base_dir}/**' if max_depth is None else f'{base_dir}' + '/*' * max_depth
+    for f in glob.glob(search_pattern, recursive=True):
         if (ext is not None) and not any([f.endswith(e) for e in ext]):
+            continue
+        if (exclude is not None) and any([e in f for e in exclude]):
+            continue
+        if (contains_any is not None) and not any([e in f for e in contains_any]):
+            continue
+        if (contains_all is not None) and not all([e in f for e in contains_all]):
             continue
         ret_files.append(f)
         
     return ret_files
 
 
-def get_images(base_dir, ext=['bmp', 'png', 'jpg', 'jpeg']):
-    return get_files(base_dir, ext=ext)
+def get_images(base_dir, ext=['bmp', 'png', 'jpg', 'jpeg'], 
+               max_depth=None, exclude=None, contains_any=None, contains_all=None):
+    return get_files(base_dir, ext=ext, max_depth=max_depth, 
+                     exclude=exclude, contains_any=contains_any, contains_all=contains_all)
 
 def get_log_dir(base_logdir='logs', *params):
     now = datetime.now().strftime("%Y%m%d-%H%M%S")

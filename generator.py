@@ -5,6 +5,7 @@ import imageio
 import random
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.layers import RandomCrop, Resizing
+import matplotlib.pyplot as plt
 
 def create_circular_mask(h, w, center=None, radius=None):
 
@@ -106,3 +107,13 @@ class DataGenerator(keras.utils.Sequence) :
         if self.onehot:
             labels = to_categorical(labels, num_classes=self.num_classes)
         return images, labels
+    
+    
+    def show_generator(self, N=12):        
+        g0 = self[0]
+        N = min(N, len(g0[0]))
+        fig, axs = plt.subplots(1,N, figsize=(20,4))
+        for i in range(N):
+            axs[i].imshow(g0[0][i])
+            axs[i].axis('off')
+            axs[i].set_title(g0[1][i])

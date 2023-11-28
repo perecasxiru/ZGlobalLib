@@ -515,3 +515,22 @@ class StepLearningRateScheduler(MyLearningRateScheduler):
     
     
         
+import signal
+class KeyboardInterruptCallback(keras.callbacks.Callback):
+    def __init__(self):
+        """
+        It stops trainning when stop kernel is hit. The trainning stops at end of epoch.
+        """
+        super(KeyboardInterruptCallback, self).__init__()
+        self.stopped_training = False
+
+        # Register a signal handler for SIGINT (keyboard interrupt)
+        signal.signal(signal.SIGINT, self.handle_signal)
+
+    def handle_signal(self, signum, frame):
+        print("\nTraining interrupted. Stopping training...")
+        self.stopped_training = True
+
+    def on_epoch_end(self, epoch, logs=None):
+        if self.stopped_training:
+            self.model.stop_training = True

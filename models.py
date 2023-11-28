@@ -64,6 +64,15 @@ class ZModel():
     
     def predict(self, *args, **kwargs):
         return self.model.predict(*args, callbacks=[TQDMPredictCallback(leave=False)], **kwargs)
+    
+    def __getattr__(self, attr):
+        # Intercept the attribute call
+        if hasattr(self.model, attr):
+            # If the attribute exists in self.model, return it
+            return getattr(self.model, attr)
+        else:
+            # Otherwise, raise an AttributeError
+            raise AttributeError(f" Keras Model object has no attribute '{attr}'")
         
 
 def get_model(name='EfficientNetB3', 
@@ -132,6 +141,6 @@ def get_model(name='EfficientNetB3',
     # ef_out = Dropout(0.5)(ef_out)
     outputs = Dense(num_classes, activation='softmax')(ef_out)
 
-    model = ZModel(inputs, outputs)
+    model = Model(inputs, outputs)
     model._name = name
     return model
