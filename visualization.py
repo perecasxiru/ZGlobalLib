@@ -1,7 +1,11 @@
 from PIL import Image
 from matplotlib import pyplot as plt
 import numpy as np
-from imageio.v3 import imread
+
+try:
+    from imageio.v3 import imread
+except:
+    from imageio import imread
 
 import io
 import cv2
@@ -23,6 +27,19 @@ def fig_to_img(fig):
     image = tf.image.decode_png(buf.getvalue(), channels=3).numpy()    
     return image
 
+
+def merge_image_mask(im, mk, alpha=0.3, channel='blue'):
+    """
+    Given an image and a mask of the same size, it blends the images together.
+    """
+    
+    color2int = dict(zip(['red', 'green', 'blue'], range(3)))    
+    assert channel in color2int
+    
+    mask_rgb = np.zeros_like(im)
+    mask_rgb[:,:,color2int[channel]] = mk
+    merge_image = (1 - alpha) * im + alpha * mask_rgb
+    return merge_image
 
 def plot_frames(images, columns=10, show_titles=True, figsize=None, title_fontsize=18, 
                 savepath=None, save_height=512, display_fig=True):

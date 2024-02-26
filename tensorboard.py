@@ -10,7 +10,7 @@ def read_tfevent(path_to_events_file):
             dct[v.tag].append(tf.make_ndarray(v.tensor))
     for val in dct:
         dct[val] = np.array(dct[val])
-    return dct
+    return dict(dct)
 
 
 def merge_events(events, keep_val='all', mode='mean'):
