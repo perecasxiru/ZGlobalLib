@@ -147,7 +147,7 @@ class SimpleLogger(keras.callbacks.Callback):
     def __init__(self, log_dir, show_model=True, expand_nested=True, 
                  optimizer_name='optimizer', lr_name='details/learning-rate', *args, **kwargs):
         """
-        It logs some metrics to be displayed in the Tensorboard UI.
+        It logs some metrics to be displayed at the Tensorboard UI.
         
         Params
         ======

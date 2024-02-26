@@ -37,7 +37,10 @@ class Logger():
     def get_file_handler(self, log_dir='.'):
         # log_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         os.makedirs(log_dir, exist_ok=True)
+        
         log_dir = os.path.join(log_dir, "_".join(log_dir.split('/')))
+        log_dir = log_dir if log_dir[0] != '_' else log_dir[1:]
+        # log_dir = 'log'+log_dir
         
         file_handler = logging.handlers.TimedRotatingFileHandler(log_dir+'.log', when='midnight', encoding='utf-8')
         file_handler.setFormatter(FORMATTER)
