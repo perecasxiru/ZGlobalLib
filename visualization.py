@@ -28,17 +28,48 @@ def fig_to_img(fig):
     return image
 
 
-def merge_image_mask(im, mk, alpha=0.3, channel='blue'):
+# def merge_image_mask(im, mk, alpha=0.3, channel='blue'):
+#     """
+#     Given an image and a mask of the same size, it blends the images together.
+#     """
+    
+#     color2int = dict(zip(['red', 'green', 'blue'], range(3)))    
+#     assert channel in color2int
+    
+#     mask_rgb = np.zeros_like(im)
+#     mask_rgb[:,:,color2int[channel]] = mk
+#     merge_image = (1 - alpha) * im + alpha * mask_rgb
+#     return merge_image
+    
+def merge_image_mask(im, mk, alpha=0.3, channel='blue', mask_thresh=0.5):
     """
     Given an image and a mask of the same size, it blends the images together.
+    
+    Params
+    ======
+    :im: Numpy image, 3 dims (3 channels).
+    :mk: Mask image, 2 dims. 
+    :alpha: Mask transparency (default is 0.3).
+    :channel: Color of the mask (default is blue).
+    :mask_thresh: Threshold for the mask values. Values over threshold will constitute the plot mask (default is 0.5).
     """
     
     color2int = dict(zip(['red', 'green', 'blue'], range(3)))    
     assert channel in color2int
-    
+
+    orig = im.copy()
+    orig[mk>=mask_thresh]=0
+
+    other = im.copy()
+    other[mk<mask_thresh]=0
+
     mask_rgb = np.zeros_like(im)
-    mask_rgb[:,:,color2int[channel]] = mk
-    merge_image = (1 - alpha) * im + alpha * mask_rgb
+    mask_rgb[:,:,color2int[channel]] = 1
+    merge_image = ((1 - alpha) * other + alpha * mask_rgb)
+    merge_image[mk<mask_thresh]=0
+    
+    merge_image += orig
+    
     return merge_image
 
 def plot_frames(images, columns=10, show_titles=True, figsize=None, title_fontsize=18, 
