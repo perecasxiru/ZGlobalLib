@@ -1,5 +1,6 @@
 from PIL import Image
 from matplotlib import pyplot as plt
+import matplotlib as mpl
 import numpy as np
 
 try:
@@ -41,7 +42,7 @@ def fig_to_img(fig):
 #     merge_image = (1 - alpha) * im + alpha * mask_rgb
 #     return merge_image
     
-def merge_image_mask(im, mk, alpha=0.3, channel='blue', mask_thresh=0.5):
+def merge_image_mask(im, mk, alpha=0.3, colormap='jet', mask_thresh=0.5):
     """
     Given an image and a mask of the same size, it blends the images together.
     
@@ -53,22 +54,16 @@ def merge_image_mask(im, mk, alpha=0.3, channel='blue', mask_thresh=0.5):
     :channel: Color of the mask (default is blue).
     :mask_thresh: Threshold for the mask values. Values over threshold will constitute the plot mask (default is 0.5).
     """
-    
-    color2int = dict(zip(['red', 'green', 'blue'], range(3)))    
-    assert channel in color2int
+    mk = np.clip(mk, 0, 1)
 
-    orig = im.copy()
-    orig[mk>=mask_thresh]=0
+    heatmap = np.uint8(255 * mk)
+    jet = mpl.colormaps[colormap]
 
-    other = im.copy()
-    other[mk<mask_thresh]=0
+    jet_colors = jet(np.arange(256))[:, :3]
+    jet_heatmap = jet_colors[heatmap]
 
-    mask_rgb = np.zeros_like(im)
-    mask_rgb[:,:,color2int[channel]] = 1
-    merge_image = ((1 - alpha) * other + alpha * mask_rgb)
-    merge_image[mk<mask_thresh]=0
-    
-    merge_image += orig
+    merge_image = jet_heatmap * alpha + im * (1-alpha)
+    merge_image[mk<mask_thresh] = im[mk<mask_thresh]
     
     return merge_image
 
