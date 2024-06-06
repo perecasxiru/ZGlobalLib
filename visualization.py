@@ -65,7 +65,7 @@ def merge_image_mask(im, mk, alpha=0.3, colormap='jet', mask_thresh=0.5):
     merge_image = jet_heatmap * alpha + im * (1-alpha)
     merge_image[mk<mask_thresh] = im[mk<mask_thresh]
     
-    return merge_image
+    return np.clip(merge_image, 0, 1)
 
 def plot_frames(images, columns=10, show_titles=True, figsize=None, title_fontsize=18, 
                 savepath=None, save_height=512, display_fig=True):
@@ -113,7 +113,12 @@ def plot_frames(images, columns=10, show_titles=True, figsize=None, title_fontsi
         if type(im2show) not in [np.array, np.ndarray]:
             im2show = imread(im2show)
             
-        axs[idx_ax].imshow(im2show)
+        if len(im2show.shape)==2:
+            # cmap = 'gray' if len(im2show.shape)==2 else None
+            axs[idx_ax].imshow(im2show, vmin=0, vmax=1)    
+        else:
+            axs[idx_ax].imshow(im2show)
+            
         axs[idx_ax].get_xaxis().set_visible(False)
         axs[idx_ax].get_yaxis().set_visible(False)
         
