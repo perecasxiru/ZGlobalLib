@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageFilter
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 import numpy as np
@@ -29,20 +29,19 @@ def fig_to_img(fig):
     return image
 
 
-# def merge_image_mask(im, mk, alpha=0.3, channel='blue'):
-#     """
-#     Given an image and a mask of the same size, it blends the images together.
-#     """
+def get_outline_from_mask(mk, thickness=3):
     
-#     color2int = dict(zip(['red', 'green', 'blue'], range(3)))    
-#     assert channel in color2int
+    if type(mk) not in [np.array, np.ndarray]:
+        mk = imread(mk).astype(float)
+        
+    if mk.max() < 2:
+        mk = (mk * 255)
+    wb = Image.fromarray(mk).convert('L')
+    outline = wb.filter(ImageFilter.FIND_EDGES).filter(ImageFilter.MaxFilter(size=thickness))
+    return np.clip(np.asarray(outline)/255, 0, 1)
+
     
-#     mask_rgb = np.zeros_like(im)
-#     mask_rgb[:,:,color2int[channel]] = mk
-#     merge_image = (1 - alpha) * im + alpha * mask_rgb
-#     return merge_image
-    
-def merge_image_mask(im, mk, alpha=0.3, colormap='jet', mask_thresh=0.5):
+def merge_image_mask(im, mk, alpha=0.3, colormap='jet', mask_thresh=0.5, outline=False, outline_thickness=3):
     """
     Given an image and a mask of the same size, it blends the images together.
     
@@ -53,7 +52,21 @@ def merge_image_mask(im, mk, alpha=0.3, colormap='jet', mask_thresh=0.5):
     :alpha: Mask transparency (default is 0.3).
     :channel: Color of the mask (default is blue).
     :mask_thresh: Threshold for the mask values. Values over threshold will constitute the plot mask (default is 0.5).
+    :outline: If true, only the borders of the mask are plotted.
+    :outline_thickness: If outline is True, sets the thickness of the outline line
     """
+    if type(im) not in [np.array, np.ndarray]:
+        im = imread(im)/255
+        
+    if type(mk) not in [np.array, np.ndarray]:
+        mk = imread(mk).astype(float)
+        
+    if len(mk.shape)>2:
+        mk = mk[:,:,0]
+    
+    if outline:
+        mk = get_outline_from_mask(mk, thickness=outline_thickness)
+    
     mk = np.clip(mk, 0, 1)
 
     heatmap = np.uint8(255 * mk)
